@@ -3,7 +3,8 @@
 .label {
     -fx-font-size: 12px;
     -fx-font-weight: bold;
-    -fx-text-fill: #333333;
+    -fx-text-fill: #ffffff;
+    -fx-background-color: transparent;
     -fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
 }
 
@@ -11,24 +12,143 @@
     -fx-text-fill: white;
     -fx-font-family: "Arial Narrow";
     -fx-font-weight: bold;
-    -fx-background-color: linear-gradient(#61a2b1, #2A5058);
+    -fx-background-color: transparent;
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
 }
 
 .button:hover{
-    -fx-base: #395bae;
+    -fx-base: black;
+}
+
+.color-picker
+{
+    -fx-background-color: #3f3f3f;
+    -fx-border-color: white;
+}
+
+.toolbar
+{
+    -fx-background-color: #3f3f3f;
+}
+
+.menu
+{
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+}
+
+.menu:hover
+{
+    -fx-background-color: black;
+}
+
+.menu-item
+{
+    -fx-background-color: #1e1e1e;
+}
+
+.menu-item:hover
+{
+    -fx-background-color: black;
 }
 
 /* Component specific styles */
-
-
-.main-panel {
-    -fx-background-image: url("../images/background.jpg");
-}
-
-.hello-message {
-    -fx-text-fill: #AA0000;
+.main-panel
+{
+    -fx-background-color: #3f3f3f;
+    -fx-font-family: "Arial";
+    -fx-font-size: 12 px;
     -fx-font-weight: bold;
-    -fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
+    -fx-text-fill: #278eff;
 }
 
+/*.hello-message {*/
+    /*-fx-text-fill: #AA0000;*/
+    /*-fx-font-weight: bold;*/
+    /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/
+/*}*/
+
+/*Buttons on Toolbar*/
+.button-select {
+    -fx-graphic: url('http://i.imgur.com/VFpGKyS.png');
+}
+
+.button-select:hover
+{
+    -fx-background-color: rgba(0, 0, 0, 0.69);
+}
+
+.button-eyedrop
+{
+    -fx-graphic: url('https://i-msdn.sec.s-msft.com/Cc294765.2ab2d2fb-3478-4b33-87fb-3cdeb9df4d52(en-us,Expression.10).png');
+}
+
+.button-eyedrop:hover
+{
+    -fx-background-color: rgba(0, 0, 0, 0.69);
+}
+
+.button-bucket
+{
+    -fx-graphic: url('http://www.popartstudio.nl/Help/Icons/paint-can-left.png');
+}
+
+.button-bucket:hover
+{
+    -fx-background-color: rgba(0, 0, 0, 0.69);
+}
+
+.button-flipV
+{
+    -fx-graphic: url('https://cdn3.iconfinder.com/data/icons/fugue/icon/layer-flip-vertical.png');
+}
+
+.button-flipV:hover
+{
+    -fx-background-color: rgba(0, 0, 0, 0.69);
+}
+
+.button-flipH
+{
+    -fx-graphic: url('https://cdn3.iconfinder.com/data/icons/fugue/icon/layer-flip.png');
+}
+
+.button-flipH:hover
+{
+    -fx-background-color: rgba(0, 0, 0, 0.69);
+}
+
+.button-crop
+{
+    -fx-graphic: url('https://helpx.adobe.com/content/dam/help/icons/A_Crop_Sm_N.png');
+}
+
+.button-crop:hover
+{
+    -fx-background-color: rgba(0, 0, 0, 0.69);
+}
+
+.button-gray
+{
+    -fx-graphic: url('http://www.tutorialspoint.com/image_editor/images/censor.png');
+}
+
+.button-gray:hover
+{
+    -fx-background-color: rgba(0, 0, 0, 0.69);
+}
+
+/*The background*/
+.main-background
+{
+    -fx-background-color: #3f3f3f;
+    -fx-border-color: #3f3f3f;
+}
+
+/*The toolbar menu up top*/
+.main-menu
+{
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: #1e1e1e;
+    -fx-text-fill: white;
+}

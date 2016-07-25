@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<VBox prefHeight="862.0" prefWidth="1328.0" styleClass="main-panel" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.uchicago.sooji1.pro_imageshop.ImageShopController">
+  <children>
+    <MenuBar styleClass="main-menu" VBox.vgrow="NEVER">
+      <menus>
+        <Menu mnemonicParsing="false" styleClass="menu" text="File">
+          <items>
+            <MenuItem mnemonicParsing="false" styleClass="menu-item" text="New" />
+            <MenuItem mnemonicParsing="false" onAction="#mnuOpenAction" styleClass="menu-item" text="Open…" />
+            <Menu mnemonicParsing="false" styleClass="menu-item" text="Open Recent" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" onAction="#mnuCloseAction" styleClass="menu-item" text="Close" />
+            <MenuItem mnemonicParsing="false" onAction="#mnuSaveAction" styleClass="menu-item" text="Save" />
+            <MenuItem mnemonicParsing="false" onAction="#mnuSaveAsAction" styleClass="menu-item" text="Save As…" />
+            <MenuItem mnemonicParsing="false" styleClass="menu-item" text="Revert" />
+                  <MenuItem mnemonicParsing="false" onAction="#mnuReOpenLast" styleClass="menu-item" text="re-open last" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" styleClass="menu-item" text="Preferences…" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" onAction="#mnuQuitAction" styleClass="menu-item" text="Quit" />
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" styleClass="menu" text="Filter">
+          <items>
+            <MenuItem mnemonicParsing="false" onAction="#mnuUndo" styleClass="menu-item" text="Undo" />
+            <MenuItem mnemonicParsing="false" onAction="#mnuRedo" styleClass="menu-item" text="Redo" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" styleClass="menu-item" text="Cut" />
+            <MenuItem mnemonicParsing="false" styleClass="menu-item" text="Copy" />
+            <MenuItem mnemonicParsing="false" styleClass="menu-item" text="Paste" />
+            <MenuItem mnemonicParsing="false" styleClass="menu-item" text="Delete" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" styleClass="menu-item" text="Select All" />
+            <MenuItem mnemonicParsing="false" styleClass="menu-item" text="Unselect All" />
+                  <MenuItem mnemonicParsing="false" onAction="#mnuSaturate" styleClass="menu-item" text="Saturate" />
+                  <MenuItem mnemonicParsing="false" onAction="#mnuGrayscale" styleClass="menu-item" text="GrayScale" />
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" styleClass="menu" text="Help">
+          <items>
+            <MenuItem mnemonicParsing="false" styleClass="menu-item" text="About MyHelloApp" />
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+      <ToolBar prefHeight="40.0" prefWidth="1328.0" styleClass="toolbar">
+         <items>
+            <Button fx:id="selButton" mnemonicParsing="false" styleClass="button-select"/>
+            <ColorPicker fx:id="cpkColor" styleClass="color-picker" />
+            <Label styleClass="menu" text="Pen-Size" />
+            <Slider fx:id="sldSize" value="50.0" />
+            <Label styleClass="menu" text="Filter" />
+            <ComboBox fx:id="cboSome" prefWidth="150.0" />
+            <ToggleButton fx:id="tgbFilter" mnemonicParsing="false" styleClass="menu" text="Apply-Filter" />
+            <ToggleButton fx:id="tgbCircle" mnemonicParsing="false" styleClass="menu" text="Circle" />
+            <ToggleButton fx:id="tgbSquare" mnemonicParsing="false" styleClass="menu" text="Square" />
+         </items>
+      </ToolBar>
+      <ScrollPane prefHeight="835.0" prefWidth="1328.0">
+        <content>
+          <AnchorPane fx:id="ancRoot" minHeight="0.0" minWidth="0.0" prefHeight="830.0" prefWidth="1329.0" styleClass="main-background">
+               <children>
+                  <ImageView fx:id="imgView" fitHeight="816.0" fitWidth="1328.0" pickOnBounds="true" preserveRatio="true" styleClass="main-background" />
+               </children>
+            </AnchorPane>
+        </content>
+      </ScrollPane>
+  </children>
+</VBox>
