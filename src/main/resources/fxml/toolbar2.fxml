@@ -19,7 +19,7 @@
                   <Button fx:id="buttonSelect" mnemonicParsing="false" onAction="#selectButtonAction" styleClass="button-select" />
                   <Button fx:id="buttonEyedrop" mnemonicParsing="false" onAction="#eyedropButtonAction" styleClass="button-eyedrop" />
                   <Button fx:id="buttonBucket" mnemonicParsing="false" onAction="#bucketButtonAction" styleClass="button-bucket" />
-                  <Button fx:id="buttonEmpty" mnemonicParsing="false" />
+                  <Button fx:id="buttonDropShadow" mnemonicParsing="false" onAction="#dropshadowButtonAction" styleClass="button-drop-shadow"/>
                </children>
             </VBox>
             <VBox prefHeight="200.0" prefWidth="100.0">

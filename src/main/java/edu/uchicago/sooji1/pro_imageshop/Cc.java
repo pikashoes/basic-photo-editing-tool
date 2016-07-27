@@ -1,11 +1,13 @@
 package edu.uchicago.sooji1.pro_imageshop;
 
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import javafx.scene.SceneBuilder;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -18,11 +20,20 @@ public class Cc {
     private Stage mMainStage, mSaturationStage, mToolbarStage;
     private ImageView imgView; // Value injected by FXMLLoader
     private Image img, imgUndo;
+    private Image IMAGE;
+    private Image tempImg;
+    private Color mColor;
+    private Boolean shadowAdded = false;
+    private Boolean toolbarOn = false;
+    private Boolean eyedropperOn = false;
+    private Boolean selectOn = false;
+    private Boolean bucketOn = false;
 
    // private boolean bFirstUndo = true;
     public static final int MAX_UNDOS = 10;
 
     private static List<Image> backImages;
+    private int pointer = 0;
 
     /**
      * Create private constructor
@@ -37,11 +48,12 @@ public class Cc {
     public static Cc getInstance(){
         if(stateManager == null){
             stateManager = new Cc();
-            backImages = new LinkedList<>();
+            backImages = new ArrayList<>();
         }
         return stateManager;
     }
 
+    //================================================================================================
     //from Horstmann
     public static Image transform(Image in, UnaryOperator<Color> f) {
         int width = (int) in.getWidth();
@@ -58,8 +70,7 @@ public class Cc {
     public static <T> Image transform(Image in, BiFunction<Color, T, Color> f, T arg) {
         int width = (int) in.getWidth();
         int height = (int) in.getHeight();
-        WritableImage out = new WritableImage(
-                width, height);
+        WritableImage out = new WritableImage(width, height);
         for (int x = 0; x < width; x++)
             for (int y = 0; y < height; y++)
                 out.getPixelWriter().setColor(x, y,
@@ -70,8 +81,7 @@ public class Cc {
     public static Image transform(Image in, ColorTransformer f) {
         int width = (int) in.getWidth();
         int height = (int) in.getHeight();
-        WritableImage out = new WritableImage(
-                width, height);
+        WritableImage out = new WritableImage(width, height);
         for (int x = 0; x < width; x++)
             for (int y = 0; y < height; y++)
                 out.getPixelWriter().setColor(x, y,
@@ -108,28 +118,272 @@ public class Cc {
         return img;
     }
 
+    //================================================================================================
 
+    /**
+     * Changes the color and opacity based on the slider.
+     * @param in
+     * @param colorChange
+     * @param opacityChange
+     * @return
+     */
+    public static Image transform(Image in, double colorChange, double opacityChange)
+    {
+        PixelReader pixelReader = in.getPixelReader();
+
+        int width = (int) in.getWidth();
+        int height = (int) in.getHeight();
+        WritableImage out = new WritableImage(
+                width, height);
+        PixelWriter pixelWriter = out.getPixelWriter();
+
+        for (int y = 0; y < in.getHeight(); y++)
+        {
+            for (int x = 0; x < in.getWidth(); x++)
+            {
+                Color color = pixelReader.getColor(x, y);
+
+                color = color.deriveColor(
+                        colorChange,
+                        1, 1, opacityChange);
+
+                pixelWriter.setColor(x, y, color);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Undo & Redo
+     */
     public void undo(){
 
-        if (imgUndo != null){
-            this.img = imgUndo;
-            imgView.setImage(img);
+//        if (imgUndo != null){
+//            this.img = imgUndo;
+//            imgView.setImage(img);
+//        }
+
+        if (backImages.size() == 1)
+        {
+            this.img = IMAGE;
         }
+
+        else if (!backImages.isEmpty())
+        {
+            pointer--;
+            this.img = backImages.get(pointer);
+        }
+
+        imgView.setImage(img);
 
     }
 
-    public void redo(){
+    public void redo()
+    {
+        if (!backImages.isEmpty())
+        {
+            pointer++;
+            this.img = backImages.get(pointer);
+        }
 
-   }
+        imgView.setImage(img);
+    }
 
-    public void setImageAndRefreshView(Image img){
-        imgUndo = this.img;
+    public void incPointer()
+    {
+        pointer++;
+    }
+
+    public void decPointer()
+    {
+        pointer--;
+    }
+
+    public void addImageToList()
+    {
+        backImages.add(this.img);
+    }
+
+    /**
+     * The original "set image and refresh view"
+     * @param img
+     */
+    public void setImageAndRefreshView(Image img)
+    {
+//        pointer++; // Remove
+        backImages.add(this.img);
+
+        imgUndo = this.img; // UNDO
+        this.img = img;
+        imgView.setImage(img);
+        setNewImage(img);
+    }
+
+    /**
+     * Specifically for the color slider and the opacity slider.
+     * @param img
+     */
+    public void setImageandRefreshViewNoNew(Image img)
+    {
+//        pointer++;
+        backImages.add(this.img);
+
+        imgUndo = this.img; // UNDO
         this.img = img;
         imgView.setImage(img);
     }
 
+    /**
+     * Getters and setters.
+     * Stores the very first, original image.
+     * @param img
+     */
+    public void setOGImage(Image img)
+    {
+        IMAGE = img;
+    }
+
+    public Image getOGImage()
+    {
+        return IMAGE;
+    }
+
+    /**
+     * These are for the opacity & color sliders. Sets a temporary new image that retains
+     * the previous effects, so that changing the opacity and color doesn't remove them.
+     * @param img
+     */
+    public void setNewImage(Image img)
+    {
+        tempImg = img;
+    }
+
+    public Image getNewImage()
+    {
+        return tempImg;
+    }
+
+    /**
+     * Flipping the image horizontally.
+     */
+    public void flipImageH()
+    {
+        if (imgView.getScaleX() == 1)
+        {
+            imgView.setScaleX(-1);
+        }
+        else
+        {
+            imgView.setScaleX(1);
+        }
+    }
+
+    /**
+     * Flipping the image vertically.
+     */
+    public void flipImageV()
+    {
+        if (imgView.getScaleY() == 1)
+        {
+            imgView.setScaleY(-1);
+        }
+        else
+        {
+            imgView.setScaleY(1);
+        }
+    }
 
 
+    /**
+     * Adds a drop shadow according to the color chosen from the color picker.
+     * @param img
+     */
+    public void addDropShadow(Image img)
+    {
+        Color dropColor = Cc.getInstance().getCurrentColor();
+        DropShadow ds = new DropShadow(15, dropColor);
+
+        // Simulates the removal of the drop shadow
+        if (shadowAdded)
+        {
+            ds.setRadius(0);
+            imgView.setEffect(ds);
+            shadowAdded = false;
+
+        } else // Add the drop shadow
+        {
+            ds.setRadius(15);
+            imgView.setEffect(ds);
+            shadowAdded = true;
+        }
+    }
+    /**
+     * Getters and setters for the color picker.
+     */
+    public Color getCurrentColor()
+    {
+        return mColor;
+    }
+
+    public void setCurrentColor(Color color)
+    {
+        mColor = color;
+    }
+
+    // This one is for the dropper tool
+    public void setCurrentColor(Image in, double x, double y)
+    {
+        PixelReader pixelReader = in.getPixelReader();
+        mColor = pixelReader.getColor((int) x, (int) y);
+    }
+
+    /**
+     * So that the user can switch between toolbar tools and menu bar.
+     * @param bool
+     */
+    public void setToolBar(Boolean bool)
+    {
+        toolbarOn = bool;
+    }
+
+    public Boolean getToolBar()
+    {
+        return toolbarOn;
+    }
+
+    public void setEyedropper(Boolean bool)
+    {
+        eyedropperOn = bool;
+    }
+
+    public Boolean getEyedropper()
+    {
+        return eyedropperOn;
+    }
+
+    public void setSelect(Boolean bool)
+    {
+        selectOn = bool;
+    }
+
+    public Boolean getSelect()
+    {
+        return selectOn;
+    }
+
+    public void setBucket(Boolean bool)
+    {
+        bucketOn = bool;
+    }
+
+    public Boolean getBucket()
+    {
+        return bucketOn;
+    }
+
+    /**
+     * Closing the image.
+     */
     public void close(){
 
         imgView.setImage(null);

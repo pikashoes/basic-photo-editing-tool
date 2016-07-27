@@ -5,14 +5,15 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
+import java.awt.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -25,13 +26,7 @@ import java.util.ResourceBundle;
 
 public class ToolbarController implements Initializable
 {
-//    private double xPos, yPos, hPos, wPos;
-//    public enum Pen
-//    {
-//        SEL, GRAY, CROP;
-//    }
-//
-//    public Pen penStyleTB = Pen.GRAY;
+    private double xPos, yPos, hPos, wPos;
 
     @FXML
     private Button buttonGray;
@@ -55,8 +50,17 @@ public class ToolbarController implements Initializable
     private Button buttonCrop;
 
     @FXML
+    private Button buttonDropShadow;
+
+    private Boolean eyedropperOn = false;
+
+    @FXML
     void grayButtonAction(ActionEvent event)
     {
+        Cc.getInstance().setEyedropper(false);
+        Cc.getInstance().setSelect(false);
+        Cc.getInstance().setBucket(false);
+
         if (Cc.getInstance().getImg() == null)
             return;
 
@@ -64,11 +68,18 @@ public class ToolbarController implements Initializable
 
         Image greyImage = Cc.getInstance().transform(Cc.getInstance().getImg(), Color::grayscale);
         Cc.getInstance().setImageAndRefreshView(greyImage);
+
+        Cc.getInstance().addImageToList();
+        Cc.getInstance().incPointer();
     }
 
     @FXML
     void selectButtonAction(ActionEvent event)
     {
+        Cc.getInstance().setToolBar(true);
+        Cc.getInstance().setEyedropper(false);
+        Cc.getInstance().setSelect(true);
+        Cc.getInstance().setBucket(false);
 
     }
 
@@ -76,85 +87,98 @@ public class ToolbarController implements Initializable
     void eyedropButtonAction(ActionEvent event)
     {
 
+        Cc.getInstance().setToolBar(true);
+        Cc.getInstance().setEyedropper(true);
+        Cc.getInstance().setSelect(false);
+        Cc.getInstance().setBucket(false);
+
     }
 
     @FXML
     void bucketButtonAction(ActionEvent event)
     {
-
+        Cc.getInstance().setToolBar(true);
+        Cc.getInstance().setEyedropper(false);
+        Cc.getInstance().setSelect(false);
+        Cc.getInstance().setBucket(true);
     }
 
     @FXML
     void flipHButtonAction(ActionEvent event)
     {
 
+        Cc.getInstance().setEyedropper(false);
+        Cc.getInstance().setSelect(false);
+        Cc.getInstance().setBucket(false);
+
+        if (Cc.getInstance().getImg() == null)
+            return;
+
+        Cc.getInstance().setImgView(Cc.getInstance().getImgView());
+        Cc.getInstance().flipImageH();
     }
 
     @FXML
     void flipVButtonAction(ActionEvent event)
     {
+        Cc.getInstance().setEyedropper(false);
+        Cc.getInstance().setSelect(false);
+        Cc.getInstance().setBucket(false);
 
+        if (Cc.getInstance().getImg() == null)
+            return;
+
+        Cc.getInstance().setImgView(Cc.getInstance().getImgView());
+        Cc.getInstance().flipImageV();
     }
 
     @FXML
     void cropButtonAction(ActionEvent event)
     {
+        Cc.getInstance().setEyedropper(false);
+        Cc.getInstance().setSelect(false);
+        Cc.getInstance().setBucket(false);
+    }
 
+    @FXML
+    void dropshadowButtonAction(ActionEvent event)
+    {
+        Cc.getInstance().setToolBar(true);
+        Cc.getInstance().setEyedropper(false);
+        Cc.getInstance().setSelect(false);
+        Cc.getInstance().setBucket(false);
+
+        Cc.getInstance().setImgView(Cc.getInstance().getImgView());
+        Cc.getInstance().addDropShadow(Cc.getInstance().getImg());
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources)
     {
-//        Cc.getInstance().getImgView().addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>()
-//        {
-//            @Override
-//            public void handle(MouseEvent me)
-//            {
-//                if (penStyleTB == Pen.GRAY)
-//                {
-//                    xPos = (int) me.getX();
-//                    yPos = (int) me.getY();
-//                }
-//
-//                me.consume();
-//            }
-//        });
-//
-//        Cc.getInstance().getImgView().addEventFilter(MouseEvent.MOUSE_RELEASED, new EventHandler<MouseEvent>()
-//        {
-//            @Override
-//            public void handle(MouseEvent me)
-//            {
-//                if (penStyleTB == Pen.GRAY)
-//                {
-//                    Image transformImage = Cc.getInstance().transform(Cc.getInstance().getImg(),
-//                            (x, y, c) -> (x > xPos && x < wPos)
-//                                    && (y > yPos && y < hPos) ?  c.deriveColor(0, 1, .5, 1): c);
-////
-////                    Image greyImage = Cc.getInstance().transform(Cc.getInstance().getImg(), Color::grayscale);
-//                    Cc.getInstance().setImageAndRefreshView(transformImage);
-//                } else {
-//                    // Do nothing for now
-//                }
-//                me.consume();
-//            }
-//        });
+        // TOOL TIPS for text when hovering over toolbar items
+        Tooltip grayTP = new Tooltip("Grayscale");
+        Tooltip.install(buttonGray, grayTP);
 
+        Tooltip selectTP = new Tooltip("Select");
+        Tooltip.install(buttonSelect, selectTP);
 
+        Tooltip eyedropTP = new Tooltip("Dropper tool");
+        Tooltip.install(buttonEyedrop, eyedropTP);
 
+        Tooltip bucketTP = new Tooltip("Bucket tool");
+        Tooltip.install(buttonBucket, bucketTP);
 
+        Tooltip flipVTP = new Tooltip("Flip Vertically");
+        Tooltip.install(buttonFlipV, flipVTP);
 
-//
-//        Cc.getInstance().getImgView().addEventFilter(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>()
-//        {
-//            @Override
-//            public void handle(MouseEvent me)
-//            {
-//                penStyleTB = Pen.CROP;
-//                me.consume();
-//            }
-//        });
+        Tooltip flipHTP = new Tooltip("Flip Horizontally");
+        Tooltip.install(buttonFlipH, flipHTP);
 
+        Tooltip cropTP = new Tooltip("Crop");
+        Tooltip.install(buttonCrop, cropTP);
+
+        Tooltip dropshadowTP = new Tooltip("Drop Shadow");
+        Tooltip.install(buttonDropShadow, dropshadowTP);
 
     }
 

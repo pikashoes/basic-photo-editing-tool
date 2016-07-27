@@ -1,5 +1,8 @@
 package edu.uchicago.sooji1.pro_imageshop;
 
+import com.sun.deploy.uitoolkit.Applet2Adapter;
+import com.sun.deploy.uitoolkit.DragContext;
+import com.sun.deploy.uitoolkit.Window;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
@@ -8,21 +11,26 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.w3c.dom.css.Rect;
 
 import javax.imageio.ImageIO;
 import javax.tools.Tool;
@@ -40,15 +48,16 @@ public class ImageShopController implements Initializable {
 
     //private Desktop desktop = Desktop.getDesktop();
     private ToggleGroup mToggleGroup = new ToggleGroup();
+    private Rectangle selRect;
 
     public enum Pen
     {
-        CIR, SQR, FIL, SEL, GRAY, CROP;
+        CIR, SQR, FIL, CRS;
     }
 
     public enum FilterStyle
     {
-        SAT, DRK, OTHER;
+        SAT, DRK;
     }
 
     private int penSize = 50;
@@ -68,6 +77,7 @@ public class ImageShopController implements Initializable {
 
     ArrayList<Shape> removeShapes = new ArrayList<>(1000);
 
+    //Base code
     //http://java-buddy.blogspot.com/2013/01/use-javafx-filechooser-to-open-image.html
     @FXML
     void mnuOpenAction(ActionEvent event) {
@@ -93,6 +103,7 @@ public class ImageShopController implements Initializable {
 
             // imgView.setImage(Cc.getInstance().getImg());
 
+            Cc.getInstance().setOGImage(SwingFXUtils.toFXImage(bufferedImage, null)); // Original image
             Cc.getInstance().setImageAndRefreshView(SwingFXUtils.toFXImage(bufferedImage, null));
 
         } catch (IOException ex) {
@@ -108,25 +119,30 @@ public class ImageShopController implements Initializable {
     private ComboBox<String> cboSome;
 
     @FXML
-    private ToggleButton tgbToolbar;
-
-    @FXML
     private ToggleButton tgbSquare;
-
 
     @FXML
     private ToggleButton tgbCircle;
 
+    @FXML
+    private ToggleButton tbCursor;
+
+    @FXML
+    private ToggleButton tgbFilter;
 
     @FXML
     private ColorPicker cpkColor;
-
 
     @FXML
     private Slider sldSize;
 
     @FXML
-    private ToggleButton tgbFilter;
+    private Slider opacitySlider;
+
+    @FXML
+    private Slider colorSlider;
+
+
 
     @FXML
     void mnuReOpenLast(ActionEvent event) {
@@ -137,13 +153,9 @@ public class ImageShopController implements Initializable {
     @FXML
     private AnchorPane ancRoot;
 
-
     @FXML
     void mnuSaveAction(ActionEvent event) {
-
     }
-
-
 
     @FXML
     void mnuSaveAsAction(ActionEvent event) {
@@ -153,10 +165,7 @@ public class ImageShopController implements Initializable {
     @FXML
     void mnuQuitAction(ActionEvent event) {
 
-
         System.exit(0);
-
-
     }
 
     @FXML
@@ -167,7 +176,6 @@ public class ImageShopController implements Initializable {
     @FXML
     void mnuGrayscale(ActionEvent event) {
 
-
         if (Cc.getInstance().getImg() == null)
             return;
 
@@ -176,14 +184,15 @@ public class ImageShopController implements Initializable {
 
         Image greyImage = Cc.getInstance().transform(Cc.getInstance().getImg(), Color::grayscale);
         Cc.getInstance().setImageAndRefreshView(greyImage);
+
+        Cc.getInstance().addImageToList();
+        Cc.getInstance().incPointer();
     }
 
     @FXML
     void mnuSaturate(ActionEvent event) {
 
-
         Cc.getInstance().setImgView(this.imgView);
-
 
         Stage dialogStage = new Stage();
         Parent root = null;
@@ -201,22 +210,19 @@ public class ImageShopController implements Initializable {
         }
     }
 
-
-
     /**
      * Undo
      * @param event
      */
     @FXML
-    void mnuUndo(ActionEvent event) {
-
+    void mnuUndo(ActionEvent event)
+    {
         Cc.getInstance().undo();
-
     }
 
-
     @FXML
-    void mnuRedo(ActionEvent event) {
+    void mnuRedo(ActionEvent event)
+    {
         Cc.getInstance().redo();
     }
 
@@ -226,13 +232,15 @@ public class ImageShopController implements Initializable {
     //see: http://docs.oracle.com/javafx/2/ui_controls/jfxpub-ui_controls.htm
     //##################################################################
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize(URL location, ResourceBundle resources)
+    {
 
         //mColor = Color.WHITE;
+        Cc.getInstance().setCurrentColor(mColor); // Set the color (which is initialized to white)
         tgbCircle.setToggleGroup(mToggleGroup);
         tgbSquare.setToggleGroup(mToggleGroup);
         tgbFilter.setToggleGroup(mToggleGroup);
-        tgbToolbar.setToggleGroup(mToggleGroup);
+        tbCursor.setToggleGroup(mToggleGroup);
         tgbCircle.setSelected(true);
         cboSome.setValue("Darker");
 
@@ -242,12 +250,20 @@ public class ImageShopController implements Initializable {
 
                 if (newValue == tgbCircle) {
                     penStyle = Pen.CIR;
+                    Cc.getInstance().setToolBar(false);
                     System.out.println("Initialize: resources = "+resources );
                 } else if (newValue == tgbSquare) {
                     penStyle = Pen.SQR;
+                    Cc.getInstance().setToolBar(false);
                 } else if (newValue == tgbFilter) {
                     penStyle = Pen.FIL;
-                } else {
+                    Cc.getInstance().setToolBar(false);
+                } else if (newValue == tbCursor)
+                {
+                    penStyle = Pen.CRS;
+                    Cc.getInstance().setToolBar(true);
+                }
+                else {
                     penStyle = Pen.CIR;
                 }
             }
@@ -260,6 +276,30 @@ public class ImageShopController implements Initializable {
                 if (penStyle == Pen.FIL){
                     xPos = (int) me.getX();
                     yPos = (int) me.getY();
+                } else if (Cc.getInstance().getToolBar())
+                {
+                    System.out.println("The toolbar is selected.");
+                    xPos = (int) me.getX();
+                    yPos = (int) me.getY();
+
+                    penStyle = Pen.CRS;
+                    tbCursor.setSelected(true);
+
+                    if (Cc.getInstance().getEyedropper())
+                    {
+                        Cc.getInstance().setCurrentColor(Cc.getInstance().getImg(), xPos, yPos);
+                        mColor = Cc.getInstance().getCurrentColor();
+                        cpkColor.setValue(mColor);
+
+//                        System.out.println("EYEDROPPER working");
+//                        System.out.println(cpkColor.getValue());
+                    }
+
+                    else if (Cc.getInstance().getSelect())
+                    {
+                        // Do something here
+                    }
+
                 }
 
                 me.consume();
@@ -280,6 +320,9 @@ public class ImageShopController implements Initializable {
                     Cc.getInstance().setImageAndRefreshView(snapshot);
                     ancRoot.getChildren().removeAll(removeShapes);
                     removeShapes.clear();
+
+                    Cc.getInstance().addImageToList();
+                    Cc.getInstance().incPointer();
 
                 } else if (penStyle == Pen.FIL){
                     wPos =  (int) me.getX() ;
@@ -302,15 +345,10 @@ public class ImageShopController implements Initializable {
                             transformImage = Cc.getInstance().transform(Cc.getInstance().getImg(),
                                     (x, y, c) -> (x > xPos && x < wPos)
                                             && (y > yPos && y < hPos) ?  c.deriveColor(0, 1.0 / .1, 1.0, 1.0): c
-
-
                             );
-
-
                             break;
 
                         default:
-                            //make darker
                             //make darker
                             transformImage = Cc.getInstance().transform(Cc.getInstance().getImg(),
                                     (x, y, c) -> (x > xPos && x < wPos)
@@ -320,10 +358,37 @@ public class ImageShopController implements Initializable {
 
                     }
 
-
-
                     Cc.getInstance().setImageAndRefreshView(transformImage);
+                    Cc.getInstance().addImageToList();
+                    Cc.getInstance().incPointer();
+
+                } else if (penStyle == Pen.CRS)
+                {
+                    Image transformImage;
+//                    if (Cc.getInstance().getSelect())
+//                    {
+//                        wPos =  (int) me.getX();
+//                        hPos = (int) me.getY();
+//
+//                        Image transformImage;
+//
+//                        transformImage = Cc.getInstance().transform(Cc.getInstance().getImg(),
+//                                (x, y, c) -> (x > xPos && x < wPos)
+//                                        && (y > yPos && y < hPos) ?  c.deriveColor(0, 1, 1.0/0.1, 1): c);
+//
+//                        Cc.getInstance().setImageAndRefreshView(transformImage);
+//                    }
+                        // NEED TO FIX
+
+//                    if (Cc.getInstance().getBucket())
+//                    {
+//                        transformImage = Cc.getInstance().transform(Cc.getInstance().getImg(),
+//                                (x, y, c) -> (x > imgView.getX() && x < imgView.getY())
+//                                        && (y > imgView.getFitWidth() && y < imgView.getFitHeight()) ?  mColor: c);
+//                    }
+
                 }
+
                 else {
                     //do nothing right now
 
@@ -338,6 +403,10 @@ public class ImageShopController implements Initializable {
             public void handle(MouseEvent me) {
 
                 if (penStyle == Pen.FIL){
+                    me.consume();
+                    return;
+                } else if (penStyle == Pen.CRS)
+                {
                     me.consume();
                     return;
                 }
@@ -383,8 +452,11 @@ public class ImageShopController implements Initializable {
             @Override
             public void handle(ActionEvent event) {
                 mColor = cpkColor.getValue();
+                Cc.getInstance().setCurrentColor(mColor);
             }
         });
+
+
 
         sldSize.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -398,7 +470,6 @@ public class ImageShopController implements Initializable {
         cboSome.getItems().addAll(
                 "Darker",
                 "Saturate"
-
         );
 
 
@@ -422,23 +493,23 @@ public class ImageShopController implements Initializable {
             }
         });
 
+        ChangeListener<Number> listener = new ChangeListener<Number>()
+        {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+            {
+                Image transformImage = Cc.getInstance().transform(Cc.getInstance().getNewImage(),
+                        colorSlider.getValue(), opacitySlider.getValue());
+                Cc.getInstance().setImageandRefreshViewNoNew(transformImage);
+                Cc.getInstance().addImageToList();
+                Cc.getInstance().incPointer();
+            }
+        };
+
+        opacitySlider.valueProperty().addListener(listener);
+        colorSlider.valueProperty().addListener(listener);
 
     }//END INIT
-
-
-    //invert
-
-//    Cc.getInstance().setSaturationLevel((int)sldSaturation.getValue());
-//
-//
-//    int nLevel = Cc.getInstance().getSaturationLevel();
-//    double dLevel = (100-nLevel)/100;
-//
-//    //saturation value
-//    Image image = Cc.transform(Cc.getInstance().getImg(), (Color c, Double d) -> c.deriveColor(0, 1.0/ d, 1.0, 1.0), dLevel);
-//    Cc.getInstance().getImgView().setImage(image);
-//
-//    Cc.getInstance().getSaturationStage().close();
 
 
 }

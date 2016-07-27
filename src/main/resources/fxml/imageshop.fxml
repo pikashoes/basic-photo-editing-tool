@@ -54,15 +54,21 @@
     </MenuBar>
       <ToolBar prefHeight="40.0" prefWidth="1328.0" styleClass="toolbar">
          <items>
-            <Button fx:id="selButton" mnemonicParsing="false" styleClass="button-select"/>
+            <Button fx:id="selButton" mnemonicParsing="false" styleClass="button-select" />
             <ColorPicker fx:id="cpkColor" styleClass="color-picker" />
             <Label styleClass="menu" text="Pen-Size" />
             <Slider fx:id="sldSize" value="50.0" />
             <Label styleClass="menu" text="Filter" />
             <ComboBox fx:id="cboSome" prefWidth="150.0" />
-            <ToggleButton fx:id="tgbFilter" mnemonicParsing="false" styleClass="menu" text="Apply-Filter" />
-            <ToggleButton fx:id="tgbCircle" mnemonicParsing="false" styleClass="menu" text="Circle" />
-            <ToggleButton fx:id="tgbSquare" mnemonicParsing="false" styleClass="menu" text="Square" />
+            <ToggleButton fx:id="tgbFilter" mnemonicParsing="false" styleClass="toggle-button" text="Apply-Filter" />
+            <ToggleButton fx:id="tgbCircle" mnemonicParsing="false" styleClass="toggle-button" text="Circle" />
+            <ToggleButton fx:id="tgbSquare" mnemonicParsing="false" styleClass="toggle-button" text="Square" />
+            <ToggleButton fx:id="tbCursor" mnemonicParsing="false" styleClass="cursor" />
+            <Separator orientation="VERTICAL" prefHeight="0.0" prefWidth="12.0" />
+            <Label fx:id="opacityLabel" styleClass="menu" text="Opacity" />
+            <Slider fx:id="opacitySlider" blockIncrement="0.5" max="1.0" value="1.0" />
+            <Label fx:id="colorLabel" styleClass="menu" text="Color" />
+            <Slider fx:id="colorSlider" max="360.0" />
          </items>
       </ToolBar>
       <ScrollPane prefHeight="835.0" prefWidth="1328.0">

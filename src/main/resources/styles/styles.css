@@ -31,6 +31,18 @@
     -fx-background-color: #3f3f3f;
 }
 
+.toggle-button
+{
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+}
+
+.toggle-button:selected
+{
+    -fx-text-fill: white;
+    -fx-background-color: #a2a2a2;
+}
+
 .menu
 {
     -fx-text-fill: white;
@@ -78,6 +90,11 @@
     -fx-background-color: rgba(0, 0, 0, 0.69);
 }
 
+.button-select:selected
+{
+    -fx-background-color: white;
+}
+
 .button-eyedrop
 {
     -fx-graphic: url('https://i-msdn.sec.s-msft.com/Cc294765.2ab2d2fb-3478-4b33-87fb-3cdeb9df4d52(en-us,Expression.10).png');
@@ -86,6 +103,11 @@
 .button-eyedrop:hover
 {
     -fx-background-color: rgba(0, 0, 0, 0.69);
+}
+
+.button-eyedrop:selected
+{
+    -fx-background-color: white;
 }
 
 .button-bucket
@@ -98,12 +120,27 @@
     -fx-background-color: rgba(0, 0, 0, 0.69);
 }
 
+.button-bucket:selected
+{
+    -fx-background-color: white;
+}
+
 .button-flipV
 {
     -fx-graphic: url('https://cdn3.iconfinder.com/data/icons/fugue/icon/layer-flip-vertical.png');
 }
 
 .button-flipV:hover
+{
+    -fx-background-color: rgba(0, 0, 0, 0.69);
+}
+
+.button-drop-shadow
+{
+    -fx-graphic: url('http://i182.photobucket.com/albums/x13/snospmiS/Kiosk%20Orb%20Tutorial/47.png');
+}
+
+.button-drop-shadow:hover
 {
     -fx-background-color: rgba(0, 0, 0, 0.69);
 }
@@ -128,6 +165,11 @@
     -fx-background-color: rgba(0, 0, 0, 0.69);
 }
 
+.button-crop:selected
+{
+    -fx-background-color: white;
+}
+
 .button-gray
 {
     -fx-graphic: url('http://www.tutorialspoint.com/image_editor/images/censor.png');
@@ -136,6 +178,20 @@
 .button-gray:hover
 {
     -fx-background-color: rgba(0, 0, 0, 0.69);
+}
+
+.cursor
+{
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+    -fx-graphic: url('http://findicons.com/files/icons/2698/free_mobile_icon_kit/16/cursor_arrow.png');
+}
+
+.cursor:selected
+{
+    -fx-text-fill: white;
+    -fx-background-color: #a2a2a2;
+    -fx-graphic: url('http://findicons.com/files/icons/2698/free_mobile_icon_kit/16/cursor_arrow.png');
 }
 
 /*The background*/
