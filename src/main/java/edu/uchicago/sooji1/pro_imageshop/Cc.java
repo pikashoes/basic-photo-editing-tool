@@ -1,25 +1,20 @@
 package edu.uchicago.sooji1.pro_imageshop;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import javafx.scene.SceneBuilder;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 
-public class Cc {
+public class Cc
+{
 
     private static Cc stateManager;
 
     private Stage mMainStage, mSaturationStage, mToolbarStage;
     private ImageView imgView; // Value injected by FXMLLoader
-    private Image img, imgUndo;
+    private Image img;
     private Image IMAGE;
     private Image tempImg;
     private Color mColor;
@@ -28,12 +23,11 @@ public class Cc {
     private Boolean eyedropperOn = false;
     private Boolean selectOn = false;
     private Boolean bucketOn = false;
+    private Boolean flipVOn = false;
+    private Boolean flipHOn = false;
 
-   // private boolean bFirstUndo = true;
-    public static final int MAX_UNDOS = 10;
-
-    private static List<Image> backImages;
-    private int pointer = 0;
+    // I created my own because I wanted to use a doubly linked list
+    private static MyLinkedList backImages = new MyLinkedList();
 
     /**
      * Create private constructor
@@ -48,7 +42,6 @@ public class Cc {
     public static Cc getInstance(){
         if(stateManager == null){
             stateManager = new Cc();
-            backImages = new ArrayList<>();
         }
         return stateManager;
     }
@@ -154,54 +147,47 @@ public class Cc {
     }
 
     /**
-     * Undo & Redo
+     * Undo function
      */
-    public void undo(){
+    public void undo()
+    {
 
-//        if (imgUndo != null){
-//            this.img = imgUndo;
-//            imgView.setImage(img);
-//        }
-
-        if (backImages.size() == 1)
+        if (backImages.hasPrevious())
         {
-            this.img = IMAGE;
+            backImages.moveToPrevious();
+            this.img = (Image) backImages.returnCurrent();
         }
-
-        else if (!backImages.isEmpty())
+        else
         {
-            pointer--;
-            this.img = backImages.get(pointer);
+            this.img = (Image) backImages.returnCurrent();
         }
 
         imgView.setImage(img);
 
     }
 
+    /**
+     * Redo function
+     */
     public void redo()
     {
-        if (!backImages.isEmpty())
+        if (backImages.hasNext())
         {
-            pointer++;
-            this.img = backImages.get(pointer);
+            backImages.moveToNext();
+            this.img = (Image) backImages.returnCurrent();
         }
 
         imgView.setImage(img);
     }
 
-    public void incPointer()
+    /**
+     * Adds an image to the Linked List. If user undos an action and then sets a new effect,
+     * all of the actions following are removed (they can no longer be redone), like pixlr does.
+     */
+    public void addImageToList(Image img)
     {
-        pointer++;
-    }
-
-    public void decPointer()
-    {
-        pointer--;
-    }
-
-    public void addImageToList()
-    {
-        backImages.add(this.img);
+        // This will automatically delete all things in front
+        backImages.insertAndDeleteNext(img);
     }
 
     /**
@@ -210,12 +196,13 @@ public class Cc {
      */
     public void setImageAndRefreshView(Image img)
     {
-//        pointer++; // Remove
-        backImages.add(this.img);
+//        backImages.add(this.img);
+//        imgUndo = this.img; // UNDO
 
-        imgUndo = this.img; // UNDO
         this.img = img;
         imgView.setImage(img);
+
+        addImageToList(img);
         setNewImage(img);
     }
 
@@ -225,11 +212,8 @@ public class Cc {
      */
     public void setImageandRefreshViewNoNew(Image img)
     {
-//        pointer++;
-        backImages.add(this.img);
-
-        imgUndo = this.img; // UNDO
         this.img = img;
+        addImageToList(img);
         imgView.setImage(img);
     }
 
@@ -293,15 +277,27 @@ public class Cc {
         }
     }
 
+    /**
+     * To check if the flip vertical is selected.
+     * @return
+     */
+    public Boolean getFlipV()
+    {
+        return flipVOn;
+    }
+
+    public void setFlipV(Boolean bool)
+    {
+        flipVOn = bool;
+    }
+
 
     /**
      * Adds a drop shadow according to the color chosen from the color picker.
-     * @param img
      */
-    public void addDropShadow(Image img)
+    public void addDropShadow()
     {
-        Color dropColor = Cc.getInstance().getCurrentColor();
-        DropShadow ds = new DropShadow(15, dropColor);
+        DropShadow ds = new DropShadow(15, mColor);
 
         // Simulates the removal of the drop shadow
         if (shadowAdded)
@@ -384,8 +380,10 @@ public class Cc {
     /**
      * Closing the image.
      */
-    public void close(){
+    public void close()
+    {
 
         imgView.setImage(null);
     }
+
 }

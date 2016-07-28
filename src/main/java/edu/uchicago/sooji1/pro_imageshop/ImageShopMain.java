@@ -18,8 +18,6 @@ import java.io.IOException;
 
 public class ImageShopMain extends Application {
 
-     //public static Stage stage;
-
     @Override
     public void start(Stage stage) throws Exception {
 
@@ -41,8 +39,9 @@ public class ImageShopMain extends Application {
 
         Cc.getInstance().setMainStage(stage);
     }
+
     /**
-     * This is the toolbar window
+     * This is the toolbar window which automatically opens upon start()
      */
     public void showToolbar() throws Exception
     {

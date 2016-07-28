@@ -34,13 +34,20 @@ PROJECT REQUIREMENTS
         2. Flip horizontally
         3. Drop shadow
     * Everything else can be undone/redone using the Undo/Redo buttons.
-
-
     * I have also added text when the mouse hovers over the toolbox buttons.
 
 3. Bucket Tool
 
+    >> What I've done <<
+    NOTE: Much like the "Saturate" and "Darker" tool that Prof. Gerber created, the user must select an area, and it
+    will fill that area with the selected color.
+
 4. Select Tool
+
+    >> What I've done <<
+    I was not successful in implementing this tool in the allotted time. I tried to create it using a similar code
+    to the base code for saturate and darker, but I could not keep the effects within the bounds and then "unselect"
+    the area afterwards.
 
 5. Eyedropper Tool
 
@@ -61,7 +68,7 @@ PROJECT REQUIREMENTS
     3. The various buttons, when selected, also change color.
     4. The background of the image view is also matching in the color scheme.
 
-7. Toolbar
+7. Vertical Toolbar
 
     >> What I've done <<
     1. I created a dialogue window that is NOT able to be closed. This will not close unless the main window is closed.
@@ -77,8 +84,17 @@ PROJECT REQUIREMENTS
     4. When you hover over any of these icons, text will appear over it to describe what each tool does.
     5. This toolbar is also in the same dark grey user interface theme.
 
-CHALLENGES
------------
-1. Having the toolbar controller and the image shop controller communicate using Cc.java and figuring out how best
-to do that using different functions was the first big challenge I had.
+    NOTE: There is a crop button in the toolbar that does nothing. I have added it for aesthetics, but since I have
+    8 image effects, I did not implement this 9th effect.
 
+PROBLEMS AND HOW I TRIED FIXING THEM
+-------------------------------------
+1. Flip Vertically
+    The Professor's base code works off of an image that is added to an image view. Flipping vertically flips the
+    whole image view, so when you try to add any other effect onto it, it will try to flip it back. I could not find a way
+    to fix this.
+2. Flip Horizontally
+    The same error as above.
+3. Drop Shadow effect
+    This stops working once the pen tool is used. Again, I don't know how to fix this, but I suspect it is because this
+    effect, like the above effects, are changing the Image View itself and not the image.

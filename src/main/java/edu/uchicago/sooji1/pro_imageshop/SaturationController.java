@@ -38,18 +38,18 @@ public class SaturationController {
     private double mVal;
 
     @FXML
-    void cancelButtonAction(ActionEvent event) {
+    void cancelButtonAction(ActionEvent event)
+    {
 
         Cc.getInstance().getSaturationStage().close();
 
     }
-
     @FXML
-    void okButtonAction(ActionEvent event) {
+    void okButtonAction(ActionEvent event)
+    {
 
         //saturation value .9 is little  and .1 is a lot. So we need to invert the value from the slider
         double dLevel = 1 - sldSaturation.getValue();
-
 
         Image image = Cc.transform(Cc.getInstance().getImg(), (Color c, Double d) -> c.deriveColor(0, 1.0 / d, 1.0, 1.0), dLevel);
         Cc.getInstance().setImageAndRefreshView(image);

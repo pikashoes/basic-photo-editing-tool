@@ -18,6 +18,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -60,15 +61,42 @@ public class ImageShopController implements Initializable {
         SAT, DRK;
     }
 
+    @FXML
+    private Button selButton;
+
+    @FXML
+    private ComboBox<String> cboSome;
+
+    @FXML
+    private ToggleButton tgbSquare;
+
+    @FXML
+    private ToggleButton tgbCircle;
+
+    @FXML
+    private ToggleButton tbCursor;
+
+    @FXML
+    private ToggleButton tgbFilter;
+
+    @FXML
+    private ColorPicker cpkColor;
+
+    @FXML
+    private Slider sldSize;
+
+    @FXML
+    private Slider opacitySlider;
+
+    @FXML
+    private Slider colorSlider;
+
     private int penSize = 50;
     private Pen penStyle = Pen.CIR;
     private FilterStyle mFilterStyle = FilterStyle.DRK;
 
     @FXML // fx:id="imgView"
     private ImageView imgView; // Value injected by FXMLLoader
-
-//    @FXML // ResourceBundle that was given to the FXMLLoader
-//    private ResourceBundle resources;
 
     // for mouse clicks
     private double xPos, yPos, hPos, wPos;
@@ -113,38 +141,6 @@ public class ImageShopController implements Initializable {
     }
 
     @FXML
-    private Button selButton;
-
-    @FXML
-    private ComboBox<String> cboSome;
-
-    @FXML
-    private ToggleButton tgbSquare;
-
-    @FXML
-    private ToggleButton tgbCircle;
-
-    @FXML
-    private ToggleButton tbCursor;
-
-    @FXML
-    private ToggleButton tgbFilter;
-
-    @FXML
-    private ColorPicker cpkColor;
-
-    @FXML
-    private Slider sldSize;
-
-    @FXML
-    private Slider opacitySlider;
-
-    @FXML
-    private Slider colorSlider;
-
-
-
-    @FXML
     void mnuReOpenLast(ActionEvent event) {
 
       //  Cc.getInstance().reOpenLast();
@@ -174,8 +170,8 @@ public class ImageShopController implements Initializable {
     }
 
     @FXML
-    void mnuGrayscale(ActionEvent event) {
-
+    void mnuGrayscale(ActionEvent event)
+    {
         if (Cc.getInstance().getImg() == null)
             return;
 
@@ -184,9 +180,6 @@ public class ImageShopController implements Initializable {
 
         Image greyImage = Cc.getInstance().transform(Cc.getInstance().getImg(), Color::grayscale);
         Cc.getInstance().setImageAndRefreshView(greyImage);
-
-        Cc.getInstance().addImageToList();
-        Cc.getInstance().incPointer();
     }
 
     @FXML
@@ -244,127 +237,115 @@ public class ImageShopController implements Initializable {
         tgbCircle.setSelected(true);
         cboSome.setValue("Darker");
 
-        mToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            @Override
-            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
+        /**
+         * TOGGLE GROUP TO SET THE EFFECTS TO PEN OR FILTERS OR TOOLBAR
+         */
+        mToggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
 
-                if (newValue == tgbCircle) {
-                    penStyle = Pen.CIR;
-                    Cc.getInstance().setToolBar(false);
-                    System.out.println("Initialize: resources = "+resources );
-                } else if (newValue == tgbSquare) {
-                    penStyle = Pen.SQR;
-                    Cc.getInstance().setToolBar(false);
-                } else if (newValue == tgbFilter) {
-                    penStyle = Pen.FIL;
-                    Cc.getInstance().setToolBar(false);
-                } else if (newValue == tbCursor)
-                {
-                    penStyle = Pen.CRS;
-                    Cc.getInstance().setToolBar(true);
-                }
-                else {
-                    penStyle = Pen.CIR;
-                }
+            if (newValue == tgbCircle) {
+                penStyle = Pen.CIR;
+                Cc.getInstance().setToolBar(false);
+                System.out.println("Initialize: resources = "+resources );
+            } else if (newValue == tgbSquare) {
+                penStyle = Pen.SQR;
+                Cc.getInstance().setToolBar(false);
+            } else if (newValue == tgbFilter) {
+                penStyle = Pen.FIL;
+                Cc.getInstance().setToolBar(false);
+            } else if (newValue == tbCursor)
+            {
+                penStyle = Pen.CRS;
+                Cc.getInstance().setToolBar(true);
+            }
+            else {
+                penStyle = Pen.CIR;
             }
         });
 
+        /**
+         * MOUSE PRESSED
+         */
+        imgView.addEventFilter(MouseEvent.MOUSE_PRESSED, me -> {
+            if (penStyle == Pen.FIL){
+                xPos = (int) me.getX();
+                yPos = (int) me.getY();
+            } else if (Cc.getInstance().getToolBar())
+            {
+                System.out.println("The toolbar is selected.");
+                xPos = (int) me.getX();
+                yPos = (int) me.getY();
 
-        imgView.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent me) {
-                if (penStyle == Pen.FIL){
-                    xPos = (int) me.getX();
-                    yPos = (int) me.getY();
-                } else if (Cc.getInstance().getToolBar())
+                penStyle = Pen.CRS;
+                tbCursor.setSelected(true);
+
+                if (Cc.getInstance().getEyedropper())
                 {
-                    System.out.println("The toolbar is selected.");
-                    xPos = (int) me.getX();
-                    yPos = (int) me.getY();
-
-                    penStyle = Pen.CRS;
-                    tbCursor.setSelected(true);
-
-                    if (Cc.getInstance().getEyedropper())
-                    {
-                        Cc.getInstance().setCurrentColor(Cc.getInstance().getImg(), xPos, yPos);
-                        mColor = Cc.getInstance().getCurrentColor();
-                        cpkColor.setValue(mColor);
-
-//                        System.out.println("EYEDROPPER working");
-//                        System.out.println(cpkColor.getValue());
-                    }
-
-                    else if (Cc.getInstance().getSelect())
-                    {
-                        // Do something here
-                    }
-
+                    Cc.getInstance().setCurrentColor(Cc.getInstance().getImg(), xPos, yPos);
+                    mColor = Cc.getInstance().getCurrentColor();
+                    cpkColor.setValue(mColor);
                 }
 
-                me.consume();
             }
+
+            me.consume();
         });
 
 
-        imgView.addEventFilter(MouseEvent.MOUSE_RELEASED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent me) {
+        /**
+         * MOUSE RELEASE
+         */
+        imgView.addEventFilter(MouseEvent.MOUSE_RELEASED, me -> {
 
-                if (penStyle == Pen.CIR || penStyle == Pen.SQR) {
+            if (penStyle == Pen.CIR || penStyle == Pen.SQR) {
 
-                    System.out.println("mouse pressed! " + me.getSource());
-                    SnapshotParameters snapshotParameters = new SnapshotParameters();
-                    snapshotParameters.setViewport(new Rectangle2D(0, 0, imgView.getFitWidth(), imgView.getFitHeight()));
-                    Image snapshot = ancRoot.snapshot(snapshotParameters, null);
-                    Cc.getInstance().setImageAndRefreshView(snapshot);
-                    ancRoot.getChildren().removeAll(removeShapes);
-                    removeShapes.clear();
+                System.out.println("mouse pressed! " + me.getSource());
+                SnapshotParameters snapshotParameters = new SnapshotParameters();
+                snapshotParameters.setViewport(new Rectangle2D(0, 0, imgView.getFitWidth(), imgView.getFitHeight()));
+                Image snapshot = ancRoot.snapshot(snapshotParameters, null);
+                Cc.getInstance().setImageAndRefreshView(snapshot);
+                ancRoot.getChildren().removeAll(removeShapes);
+                removeShapes.clear();
 
-                    Cc.getInstance().addImageToList();
-                    Cc.getInstance().incPointer();
+            } else if (penStyle == Pen.FIL){
+                wPos =  (int) me.getX() ;
+                hPos = (int) me.getY() ;
 
-                } else if (penStyle == Pen.FIL){
-                    wPos =  (int) me.getX() ;
-                    hPos = (int) me.getY() ;
+                //default value
+               Image transformImage;
 
-                    //default value
-                   Image transformImage;
+                switch (mFilterStyle){
+                    case DRK:
+                        //make darker
+                        transformImage = Cc.getInstance().transform(Cc.getInstance().getImg(),
+                                (x, y, c) -> (x > xPos && x < wPos)
+                                        && (y > yPos && y < hPos) ?  c.deriveColor(0, 1, .5, 1): c
+                        );
+                        break;
 
-                    switch (mFilterStyle){
-                        case DRK:
-                            //make darker
-                            transformImage = Cc.getInstance().transform(Cc.getInstance().getImg(),
-                                    (x, y, c) -> (x > xPos && x < wPos)
-                                            && (y > yPos && y < hPos) ?  c.deriveColor(0, 1, .5, 1): c
-                            );
-                            break;
+                    case SAT:
+                        //saturate
+                        transformImage = Cc.getInstance().transform(Cc.getInstance().getImg(),
+                                (x, y, c) -> (x > xPos && x < wPos)
+                                        && (y > yPos && y < hPos) ?  c.deriveColor(0, 1.0 / .1, 1.0, 1.0): c
+                        );
+                        break;
 
-                        case SAT:
-                            //saturate
-                            transformImage = Cc.getInstance().transform(Cc.getInstance().getImg(),
-                                    (x, y, c) -> (x > xPos && x < wPos)
-                                            && (y > yPos && y < hPos) ?  c.deriveColor(0, 1.0 / .1, 1.0, 1.0): c
-                            );
-                            break;
+                    default:
+                        //make darker
+                        transformImage = Cc.getInstance().transform(Cc.getInstance().getImg(),
+                                (x, y, c) -> (x > xPos && x < wPos)
+                                        && (y > yPos && y < hPos) ?  c.deriveColor(0, 1, .5, 1): c
+                        );
+                        break;
 
-                        default:
-                            //make darker
-                            transformImage = Cc.getInstance().transform(Cc.getInstance().getImg(),
-                                    (x, y, c) -> (x > xPos && x < wPos)
-                                            && (y > yPos && y < hPos) ?  c.deriveColor(0, 1, .5, 1): c
-                            );
-                            break;
+                }
 
-                    }
+                Cc.getInstance().setImageAndRefreshView(transformImage);
 
-                    Cc.getInstance().setImageAndRefreshView(transformImage);
-                    Cc.getInstance().addImageToList();
-                    Cc.getInstance().incPointer();
 
-                } else if (penStyle == Pen.CRS)
-                {
-                    Image transformImage;
+            } else if (penStyle == Pen.CRS)
+            {
+                Image transformImage;
 //                    if (Cc.getInstance().getSelect())
 //                    {
 //                        wPos =  (int) me.getX();
@@ -378,76 +359,76 @@ public class ImageShopController implements Initializable {
 //
 //                        Cc.getInstance().setImageAndRefreshView(transformImage);
 //                    }
-                        // NEED TO FIX
+                    // THIS DOESN'T WORK: NEED TO USE RECTANGLE and make transparent (no fill)
 
-//                    if (Cc.getInstance().getBucket())
-//                    {
-//                        transformImage = Cc.getInstance().transform(Cc.getInstance().getImg(),
-//                                (x, y, c) -> (x > imgView.getX() && x < imgView.getY())
-//                                        && (y > imgView.getFitWidth() && y < imgView.getFitHeight()) ?  mColor: c);
-//                    }
-
-                }
-
-                else {
-                    //do nothing right now
-
-                }
-                me.consume();
-            }
-        });
-
-
-        imgView.addEventFilter(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent me) {
-
-                if (penStyle == Pen.FIL){
-                    me.consume();
-                    return;
-                } else if (penStyle == Pen.CRS)
+                if (Cc.getInstance().getBucket())
                 {
-                    me.consume();
-                    return;
+                    wPos =  (int) me.getX();
+                    hPos = (int) me.getY();
+
+                    transformImage = Cc.getInstance().transform(Cc.getInstance().getImg(),
+                            (x, y, c) -> (x > xPos && x < wPos)
+                                    && (y > yPos && y < hPos) ?  mColor: c);
+                    Cc.getInstance().setImageAndRefreshView(transformImage);
                 }
-
-                // Line line = new Line(xPos, yPos, me.getX(), me.getY());
-                xPos = me.getX();
-                yPos = me.getY();
-
-                int nShape = 0;
-                //default value
-                Shape shape = new Circle(xPos, yPos, 10);
-                switch (penStyle) {
-                    case CIR:
-                        shape = new Circle(xPos, yPos, penSize);
-                        break;
-                    case SQR:
-                        shape = new Rectangle(xPos, yPos, penSize, penSize);
-                        break;
-
-
-                    default:
-                        shape = new Circle(xPos, yPos, penSize);
-                        break;
-
-                }
-
-               // shape.setStroke(mColor);
-                shape.setFill(mColor);
-
-                ancRoot.getChildren().add(shape);
-                removeShapes.add(shape);
-                me.consume();
-
-                //   Node shapeRemove =  ancRoot.getScene().lookup("789");
-                //  ancRoot.getChildren().remove(shapeRemove);
-
 
             }
+
+            else {
+                //do nothing right now
+
+            }
+            me.consume();
         });
 
 
+        /**
+         * MOUSE DRAG
+         */
+        imgView.addEventFilter(MouseEvent.MOUSE_DRAGGED, me -> {
+
+            if (penStyle == Pen.FIL){
+                me.consume();
+                return;
+            } else if (penStyle == Pen.CRS)
+            {
+                me.consume();
+                return;
+            }
+
+            xPos = me.getX();
+            yPos = me.getY();
+
+            int nShape = 0;
+            //default value
+            Shape shape = new Circle(xPos, yPos, 10);
+            switch (penStyle) {
+                case CIR:
+                    shape = new Circle(xPos, yPos, penSize);
+                    break;
+                case SQR:
+                    shape = new Rectangle(xPos, yPos, penSize, penSize);
+                    break;
+
+
+                default:
+                    shape = new Circle(xPos, yPos, penSize);
+                    break;
+
+            }
+
+           // shape.setStroke(mColor);
+            shape.setFill(mColor);
+
+            ancRoot.getChildren().add(shape);
+            removeShapes.add(shape);
+            me.consume();
+        });
+
+
+        /**
+         * Color Picker
+         */
         cpkColor.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -457,7 +438,9 @@ public class ImageShopController implements Initializable {
         });
 
 
-
+        /**
+         * Listener for the slider (pen size)
+         */
         sldSize.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -467,6 +450,9 @@ public class ImageShopController implements Initializable {
         });
 
 
+        /**
+         * For the filter pickers
+         */
         cboSome.getItems().addAll(
                 "Darker",
                 "Saturate"
@@ -493,6 +479,9 @@ public class ImageShopController implements Initializable {
             }
         });
 
+        /**
+         * This is for the sliders
+         */
         ChangeListener<Number> listener = new ChangeListener<Number>()
         {
             @Override
@@ -501,15 +490,14 @@ public class ImageShopController implements Initializable {
                 Image transformImage = Cc.getInstance().transform(Cc.getInstance().getNewImage(),
                         colorSlider.getValue(), opacitySlider.getValue());
                 Cc.getInstance().setImageandRefreshViewNoNew(transformImage);
-                Cc.getInstance().addImageToList();
-                Cc.getInstance().incPointer();
+
             }
         };
 
         opacitySlider.valueProperty().addListener(listener);
         colorSlider.valueProperty().addListener(listener);
 
-    }//END INIT
+    } //END INIT
 
 
 }

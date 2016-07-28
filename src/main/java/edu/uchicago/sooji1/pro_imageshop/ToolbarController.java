@@ -1,21 +1,15 @@
 package edu.uchicago.sooji1.pro_imageshop;
 
-import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-
-import java.awt.*;
 import java.net.URL;
 import java.util.ResourceBundle;
+
 
 /**
  * Created by pikashoes on 7/24/16.
@@ -26,7 +20,6 @@ import java.util.ResourceBundle;
 
 public class ToolbarController implements Initializable
 {
-    private double xPos, yPos, hPos, wPos;
 
     @FXML
     private Button buttonGray;
@@ -52,14 +45,13 @@ public class ToolbarController implements Initializable
     @FXML
     private Button buttonDropShadow;
 
-    private Boolean eyedropperOn = false;
-
     @FXML
     void grayButtonAction(ActionEvent event)
     {
         Cc.getInstance().setEyedropper(false);
         Cc.getInstance().setSelect(false);
         Cc.getInstance().setBucket(false);
+        Cc.getInstance().setFlipV(false);
 
         if (Cc.getInstance().getImg() == null)
             return;
@@ -68,9 +60,6 @@ public class ToolbarController implements Initializable
 
         Image greyImage = Cc.getInstance().transform(Cc.getInstance().getImg(), Color::grayscale);
         Cc.getInstance().setImageAndRefreshView(greyImage);
-
-        Cc.getInstance().addImageToList();
-        Cc.getInstance().incPointer();
     }
 
     @FXML
@@ -80,7 +69,7 @@ public class ToolbarController implements Initializable
         Cc.getInstance().setEyedropper(false);
         Cc.getInstance().setSelect(true);
         Cc.getInstance().setBucket(false);
-
+        Cc.getInstance().setFlipV(false);
     }
 
     @FXML
@@ -91,7 +80,7 @@ public class ToolbarController implements Initializable
         Cc.getInstance().setEyedropper(true);
         Cc.getInstance().setSelect(false);
         Cc.getInstance().setBucket(false);
-
+        Cc.getInstance().setFlipV(false);
     }
 
     @FXML
@@ -101,15 +90,17 @@ public class ToolbarController implements Initializable
         Cc.getInstance().setEyedropper(false);
         Cc.getInstance().setSelect(false);
         Cc.getInstance().setBucket(true);
+        Cc.getInstance().setFlipV(false);
     }
 
     @FXML
     void flipHButtonAction(ActionEvent event)
     {
-
+        Cc.getInstance().setToolBar(true);
         Cc.getInstance().setEyedropper(false);
         Cc.getInstance().setSelect(false);
         Cc.getInstance().setBucket(false);
+        Cc.getInstance().setFlipV(true);
 
         if (Cc.getInstance().getImg() == null)
             return;
@@ -121,9 +112,11 @@ public class ToolbarController implements Initializable
     @FXML
     void flipVButtonAction(ActionEvent event)
     {
+        Cc.getInstance().setToolBar(true);
         Cc.getInstance().setEyedropper(false);
         Cc.getInstance().setSelect(false);
         Cc.getInstance().setBucket(false);
+        Cc.getInstance().setFlipV(false);
 
         if (Cc.getInstance().getImg() == null)
             return;
@@ -138,6 +131,7 @@ public class ToolbarController implements Initializable
         Cc.getInstance().setEyedropper(false);
         Cc.getInstance().setSelect(false);
         Cc.getInstance().setBucket(false);
+        Cc.getInstance().setFlipV(false);
     }
 
     @FXML
@@ -147,9 +141,9 @@ public class ToolbarController implements Initializable
         Cc.getInstance().setEyedropper(false);
         Cc.getInstance().setSelect(false);
         Cc.getInstance().setBucket(false);
+        Cc.getInstance().setFlipV(false);
 
-        Cc.getInstance().setImgView(Cc.getInstance().getImgView());
-        Cc.getInstance().addDropShadow(Cc.getInstance().getImg());
+        Cc.getInstance().addDropShadow();
     }
 
     @Override
@@ -183,4 +177,7 @@ public class ToolbarController implements Initializable
     }
 
 
+
 }
+
+
