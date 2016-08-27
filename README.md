@@ -1,6 +1,10 @@
 ProImageShop Project
 Written by Sooji Yi
 
+PURPOSE OF PROJECT
+------------------
+To simulate an image ediitng app like Pixlr.
+
 PROJECT REQUIREMENTS
 ---------------------
 1. Eight image effects
